@@ -137,7 +137,7 @@ class userController {
             const salt = await bcryptjs.genSaltSync();
             password = await String(bcryptjs.hashSync(password, salt));
         }
-        const data = { name, email, password, telephone, company_id };
+        const data = { name, email, password, telephone };
         try {
             const trx = await database.transaction();
             await trx('users').update(data).where({ 'id': id });

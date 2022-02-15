@@ -2,22 +2,22 @@ import database from '../database/database';
 import { Request, Response } from 'express';
 import logger from '../logger/logger';
 
-class bankController {
+class expense_categoryController {
     async create(req: Request, res: Response) {
-        var { bank, type, balance } = req.body;
-        var company_id = Number(req.body.company_id);
+        var name = req.body.name;
         var user_id = Number(req.body.user_id);
-        if (!bank || !type || !company_id || !balance) {
+        var company_id = Number(req.body.company_id);
+        if (!name || !company_id || !user_id || company_id === undefined || user_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
                 'messagem': 'Verifique os campos obrigatorios'
             });
-        };
+        }
+        const data = { name, company_id, user_id };
         try {
             const trx = await database.transaction();
-            const data = { bank, type, balance, company_id, user_id };
-            await trx('bank').insert(data);
+            await trx('expense_category').insert(data);
             await trx.commit();
             res.status(201).json({
                 'resultado': 201,
@@ -32,12 +32,13 @@ class bankController {
                 'messagem': 'Erro, ação não foi bem sucedido'
             });
         }
+
     }
     async eliminate(req: Request, res: Response) {
-        var id = Number(req.body.id);
+        var id = req.body.id;
         var company_id = Number(req.body.company_id);
         var user_id = Number(req.body.user_id);
-        if (!id || !company_id || id === undefined || company_id === undefined) {
+        if (!id || !company_id || !user_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
@@ -46,21 +47,22 @@ class bankController {
         };
         try {
             const trx = await database.transaction();
-            const count_bank = await trx('bank').count('id as id').where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
-            if (count_bank[0].id <= 0) {
+            const count_expenseCategory = await trx('expense_category').count('id as id').where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
+            if (count_expenseCategory[0].id <= 0) {
                 return res.status(400).json({
                     'resultado': 400,
                     'status': 'falha',
-                    'messagem': 'Não foi encontrado Bank, vinculado a essa empresa e esse usuario'
+                    'messagem': 'Não foi encontrado um Tipo de categoria, vinculado a essa empresa e esse usuario'
                 });
             }
-            await trx('bank').delete().where({ 'id': id, 'company_id': company_id });
+            await trx('expense_category').delete().where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
                 'status': 'sucesso',
                 id: id,
-                company_id: company_id
+                company_id: company_id,
+                user_id: user_id
             });
         } catch (error) {
             logger.error(error);
@@ -71,7 +73,7 @@ class bankController {
             });
         }
     }
-    async get(req: Request, res: Response) {
+    async get(req: Request, res: Response){
         var id = Number(req.params.id);
         var user_id = Number(req.body.user_id);
         var company_id = Number(req.body.company_id);
@@ -84,7 +86,7 @@ class bankController {
         };
         try {
             const trx = await database.transaction();
-            const dados = await trx('bank').select('*').where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
+            const dados = await trx('expense_category').select('*').where({ 'id': id, 'company_id': company_id, 'user_id': user_id});
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -102,8 +104,8 @@ class bankController {
     }
     async list(req: Request, res: Response) {
         var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);
-        if (!user_id || !company_id || user_id === undefined || company_id === undefined) {
+        var company_id = Number(req.body.company_id);       
+        if(!user_id || !company_id || user_id === undefined || company_id === undefined){
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
@@ -112,7 +114,7 @@ class bankController {
         }
         try {
             const trx = await database.transaction();
-            const dados = await trx('bank').select('*').where({ 'user_id': user_id, 'company_id': company_id });
+            const dados = await trx('expense_category').select('*').where({'user_id': user_id, 'company_id': company_id});
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -121,7 +123,7 @@ class bankController {
             });
         } catch (error) {
             logger.error(error);
-            return res.status(500).json({
+            return res.status(500).json({ 
                 'resultado': 500,
                 'status': 'falha',
                 'messagem': 'Erro, ação não foi bem sucedido'
@@ -132,11 +134,12 @@ class bankController {
 
         const id = Number(req.body.id);
         const company_id = Number(req.body.company_id);
-        var { bank, type, balance } = req.body
-        const data = { bank, type, balance };
+        const user_id = Number(req.body.user_id);
+        var { name} = req.body             
+        const data = { name };       
         try {
             const trx = await database.transaction();
-            await trx('bank').update(data).where({ 'id': id, 'company_id': company_id });
+            await trx('expense_category').update(data).where({ 'id': id, 'company_id': company_id, 'user_id': user_id});
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -153,5 +156,7 @@ class bankController {
             });
         }
     }
+    
 }
-export default bankController;
+
+export default expense_categoryController;
