@@ -1,23 +1,25 @@
 import database from '../database/database';
-import { Request, Response } from 'express';
+import { Response, Request } from 'express';
 import logger from '../logger/logger';
 
-class expense_categoryController {
+class expenseController {
     async create(req: Request, res: Response) {
         var name = req.body.name;
         var user_id = Number(req.body.user_id);
         var company_id = Number(req.body.company_id);
-        if (!name || !company_id || !user_id || company_id === undefined || user_id === undefined) {
+        var expense_category_id = Number(req.body.expense_category_id);
+
+        if (!name || !company_id || !user_id || !expense_category_id) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
                 'messagem': 'Verifique os campos obrigatorios'
             });
-        }
-        const data = { name, company_id, user_id };
+        };
         try {
             const trx = await database.transaction();
-            await trx('expense_category').insert(data);
+            const data = { name, company_id, expense_category_id, user_id };
+            await trx('expense').insert(data);
             await trx.commit();
             res.status(201).json({
                 'resultado': 201,
@@ -32,30 +34,21 @@ class expense_categoryController {
                 'messagem': 'Erro, ação não foi bem sucedido'
             });
         }
-
     }
     async eliminate(req: Request, res: Response) {
-        var id = req.body.id;
+        var id = Number(req.body.id);
         var company_id = Number(req.body.company_id);
         var user_id = Number(req.body.user_id);
-        if (!id || !company_id || !user_id || id === undefined || company_id === undefined) {
+        if (!id || !company_id || !user_id) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
                 'messagem': 'Verifique os campos obrigatorios'
             });
-        };
+        }
         try {
             const trx = await database.transaction();
-            const count_expenseCategory = await trx('expense').count('id as id').where({ 'expense_category_id': id });
-            if (count_expenseCategory[0].id >= 1) {
-                return res.status(400).json({
-                    'resultado': 400,
-                    'status': 'falha',
-                    'messagem': 'Existe uma despesa vinculado a essa tipo de categoria'
-                });
-            }
-            await trx('expense_category').delete().where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
+            await trx('expense').delete().where({ 'id': id, 'user_id': user_id, 'company_id': company_id });
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -73,11 +66,11 @@ class expense_categoryController {
             });
         }
     }
-    async get(req: Request, res: Response){
+    async get(req: Request, res: Response) {
         var id = Number(req.params.id);
         var user_id = Number(req.body.user_id);
         var company_id = Number(req.body.company_id);
-        if (!id || !company_id || id === undefined || company_id === undefined) {
+        if (!id || !company_id || !user_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
@@ -86,7 +79,7 @@ class expense_categoryController {
         };
         try {
             const trx = await database.transaction();
-            const dados = await trx('expense_category').select('*').where({ 'id': id, 'company_id': company_id, 'user_id': user_id});
+            const dados = await trx('expense').select('*').where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -104,8 +97,8 @@ class expense_categoryController {
     }
     async list(req: Request, res: Response) {
         var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);       
-        if(!user_id || !company_id || user_id === undefined || company_id === undefined){
+        var company_id = Number(req.body.company_id);
+        if (!user_id || !company_id) {
             return res.status(400).json({
                 'resultado': 400,
                 'status': 'falha',
@@ -114,7 +107,7 @@ class expense_categoryController {
         }
         try {
             const trx = await database.transaction();
-            const dados = await trx('expense_category').select('*').where({'user_id': user_id, 'company_id': company_id});
+            const dados = await trx('expense').select('*').where({ 'user_id': user_id, 'company_id': company_id });
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -123,7 +116,7 @@ class expense_categoryController {
             });
         } catch (error) {
             logger.error(error);
-            return res.status(500).json({ 
+            return res.status(500).json({
                 'resultado': 500,
                 'status': 'falha',
                 'messagem': 'Erro, ação não foi bem sucedido'
@@ -131,15 +124,21 @@ class expense_categoryController {
         }
     }
     async update(req: Request, res: Response) {
-
         const id = Number(req.body.id);
-        const company_id = Number(req.body.company_id);
+        var name = req.body.name;
         const user_id = Number(req.body.user_id);
-        var { name} = req.body             
-        const data = { name };       
+        const company_id = Number(req.body.company_id);
+        if (!id || !company_id || !user_id) {
+            return res.status(400).json({
+                'resultado': 400,
+                'status': 'falha',
+                'messagem': 'Verifique os campos obrigatorios'
+            });
+        }
         try {
+            const data = { name };
             const trx = await database.transaction();
-            await trx('expense_category').update(data).where({ 'id': id, 'company_id': company_id, 'user_id': user_id});
+            await trx('expense').update(data).where({ 'id': id, 'company_id': company_id, 'user_id': user_id});
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,
@@ -156,7 +155,6 @@ class expense_categoryController {
             });
         }
     }
-    
 }
 
-export default expense_categoryController;
+export default expenseController;
