@@ -10,7 +10,6 @@ interface user {
     email: string;
 }
 
-
 class userController {
 
     async create(req: Request, res: Response) {

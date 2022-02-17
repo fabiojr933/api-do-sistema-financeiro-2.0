@@ -5,8 +5,8 @@ import logger from '../logger/logger';
 class expense_categoryController {
     async create(req: Request, res: Response) {
         var name = req.body.name;
-        var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);
+        var user_id = Number(req.headers.user_id);         
+        var company_id = Number(req.headers.company_id);
         if (!name || !company_id || !user_id || company_id === undefined || user_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -35,9 +35,9 @@ class expense_categoryController {
 
     }
     async eliminate(req: Request, res: Response) {
-        var id = req.body.id;
-        var company_id = Number(req.body.company_id);
-        var user_id = Number(req.body.user_id);
+        var id = req.params.id;
+        var company_id = Number(req.headers.company_id);
+        var user_id = Number(req.headers.user_id);
         if (!id || !company_id || !user_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -75,8 +75,8 @@ class expense_categoryController {
     }
     async get(req: Request, res: Response){
         var id = Number(req.params.id);
-        var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);
+        var user_id = Number(req.headers.user_id);
+        var company_id = Number(req.headers.company_id);
         if (!id || !company_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -103,8 +103,8 @@ class expense_categoryController {
         }
     }
     async list(req: Request, res: Response) {
-        var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);       
+        var user_id = Number(req.headers.user_id);
+        var company_id = Number(req.headers.company_id);       
         if(!user_id || !company_id || user_id === undefined || company_id === undefined){
             return res.status(400).json({
                 'resultado': 400,
@@ -133,8 +133,8 @@ class expense_categoryController {
     async update(req: Request, res: Response) {
 
         const id = Number(req.body.id);
-        const company_id = Number(req.body.company_id);
-        const user_id = Number(req.body.user_id);
+        const company_id = Number(req.headers.company_id);
+        const user_id = Number(req.headers.user_id);
         var { name} = req.body             
         const data = { name };       
         try {

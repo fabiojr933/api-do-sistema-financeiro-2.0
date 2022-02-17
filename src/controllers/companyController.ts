@@ -1,11 +1,13 @@
 import database from '../database/database';
 import { Request, Response } from 'express';
 import logger from '../logger/logger';
+import crypto from 'crypto';
 
 class companyController {
 
     async create(req: Request, res: Response) {
-        const { name, address, cnpj, telephone } = req.body;       
+        const { name, address, cnpj, telephone } = req.body;   
+        const token = crypto.randomBytes(40).toString('hex');
         if (!name || !address || !cnpj || !telephone) {
             return res.status(400).json({
                 'resultado': 400,
@@ -16,7 +18,8 @@ class companyController {
         try {
             const trx = await database.transaction();
             const count_cnpj = await trx('company').count('id as id').where({'cnpj': cnpj});
-            if(count_cnpj[0].id >= 1){
+            const count_token = await trx('company').count('id as id').where({'cnpj': token});
+            if(count_cnpj[0].id >= 1 || count_token[0].id >= 1){
                 return res.status(400).json({
                     'resultado': 400,
                     'status': 'falha',
@@ -24,7 +27,7 @@ class companyController {
                 });
             }
             const data = {
-                name, address, cnpj, telephone
+                name, address, cnpj, telephone, token
             };
             await trx('company').insert(data);
             await trx.commit();
@@ -44,7 +47,7 @@ class companyController {
     };
 
     async eliminate(req: Request, res: Response) {
-        const id = req.body.id;
+        const id = Number(req.params.id);
         if (!id || isNaN(id)) {
             return res.status(400).json({
                 'resultado': 400,

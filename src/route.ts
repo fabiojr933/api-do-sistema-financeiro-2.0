@@ -20,7 +20,7 @@ const revenueController = new RevenueController();
 //companyController
 route.post('/company', authorization, companyController.create);
 route.put('/company', authorization, companyController.update);
-route.delete('/company', authorization, companyController.eliminate);
+route.delete('/company/:id', authorization, companyController.eliminate);
 route.get('/company/:id', authorization, companyController.get);
 route.get('/companyList',authorization, companyController.list);
 
@@ -35,28 +35,28 @@ route.get('/user/logoff', authorization, userController.logoff);
 
 //bankController
 route.post('/bank', authorization, bankController.create);
-route.delete('/bank', authorization, bankController.eliminate);
+route.delete('/bank/:id', authorization, bankController.eliminate);
 route.get('/bank/:id', authorization, bankController.get);
 route.get('/bankList', authorization, bankController.list);
 route.put('/bank', authorization, bankController.update);
 
 //expense_categoryController
 route.post('/expenseCategory', authorization, expense_categoryController.create);
-route.delete('/expenseCategory', authorization, expense_categoryController.eliminate);
+route.delete('/expenseCategory/:id', authorization, expense_categoryController.eliminate);
 route.get('/expenseCategory/:id', authorization, expense_categoryController.get);
 route.get('/expenseCategoryList', authorization, expense_categoryController.list);
 route.put('/expenseCategory', authorization, expense_categoryController.update);
 
 //ExpenseController
 route.post('/expense', authorization, expenseController.create);
-route.delete('/expense', authorization, expenseController.eliminate);
+route.delete('/expense/:id', authorization, expenseController.eliminate);
 route.get('/expense/:id', authorization, expenseController.get);
 route.get('/expenseList', authorization, expenseController.list);
 route.put('/expense', authorization, expenseController.update);
 
 //revenueController
 route.post('/revenue', authorization, revenueController.create);
-route.delete('/revenue', authorization, revenueController.eliminate);
+route.delete('/revenue/:id', authorization, revenueController.eliminate);
 route.get('/revenue/:id', authorization, revenueController.get);
 route.get('/revenueList', authorization, revenueController.list);
 route.put('/revenue', authorization, revenueController.update);

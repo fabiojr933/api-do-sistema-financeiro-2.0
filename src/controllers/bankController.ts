@@ -5,8 +5,8 @@ import logger from '../logger/logger';
 class bankController {
     async create(req: Request, res: Response) {
         var { bank, type, balance } = req.body;
-        var company_id = Number(req.body.company_id);
-        var user_id = Number(req.body.user_id);
+        var company_id = Number(req.headers.company_id);
+        var user_id = Number(req.headers.user_id);
         if (!bank || !type || !company_id || !balance) {
             return res.status(400).json({
                 'resultado': 400,
@@ -34,9 +34,9 @@ class bankController {
         }
     }
     async eliminate(req: Request, res: Response) {
-        var id = Number(req.body.id);
-        var company_id = Number(req.body.company_id);
-        var user_id = Number(req.body.user_id);
+        var id = Number(req.params.id);
+        var company_id = Number(req.headers.company_id);
+        var user_id = Number(req.headers.user_id);
         if (!id || !company_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -73,8 +73,8 @@ class bankController {
     }
     async get(req: Request, res: Response) {
         var id = Number(req.params.id);
-        var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);
+        var user_id = Number(req.headers.user_id);
+        var company_id = Number(req.headers.company_id);
         if (!id || !company_id || id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -101,8 +101,8 @@ class bankController {
         }
     }
     async list(req: Request, res: Response) {
-        var user_id = Number(req.body.user_id);
-        var company_id = Number(req.body.company_id);
+        var user_id = Number(req.headers.user_id);
+        var company_id = Number(req.headers.company_id);
         if (!user_id || !company_id || user_id === undefined || company_id === undefined) {
             return res.status(400).json({
                 'resultado': 400,
@@ -131,12 +131,13 @@ class bankController {
     async update(req: Request, res: Response) {
 
         const id = Number(req.body.id);
-        const company_id = Number(req.body.company_id);
+        const company_id = Number(req.headers.company_id);
+        const user_id = Number(req.headers.user_id);
         var { bank, type, balance } = req.body
         const data = { bank, type, balance };
         try {
             const trx = await database.transaction();
-            await trx('bank').update(data).where({ 'id': id, 'company_id': company_id });
+            await trx('bank').update(data).where({ 'id': id, 'company_id': company_id, 'user_id': user_id });
             await trx.commit();
             return res.status(200).json({
                 'resultado': 200,

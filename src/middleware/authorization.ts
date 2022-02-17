@@ -1,10 +1,11 @@
 import { Request, Response,  NextFunction } from 'express';
 import logger from '../logger/logger';
+import database from '../database/database';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-function authorization(req: Request, res: Response, next: NextFunction) {  
+async function authorization(req: Request, res: Response, next: NextFunction) {  
     const token = (req.header('Authorization')?.replace('Bearer ', ''));   
     try {
         if (!token) {
@@ -21,7 +22,11 @@ function authorization(req: Request, res: Response, next: NextFunction) {
                 'messagem': 'Token undefined'
             });
         }
-        if (token != process.env.TOKEN) {
+        const trx = await database.transaction();
+        const token_empresa = await trx('company').select('token').where({'token': token});
+        await trx.commit();
+                 
+        if (token != token_empresa[0].token) {
             return res.status(401).json({
                 'resultado': 401,
                 'status': 'falha',
