@@ -6,7 +6,7 @@ import BankController from './controllers/bankController';
 import Expense_categoryController from "./controllers/expense_categoryController";
 import ExpenseController from './controllers/expenseController';
 import RevenueController from './controllers/revenueController';
-
+import InvoiceController from './controllers/invoiceController';
 
 const route = express.Router();
 
@@ -16,6 +16,7 @@ const bankController = new BankController();
 const expense_categoryController = new Expense_categoryController();
 const expenseController = new ExpenseController();
 const revenueController = new RevenueController();
+const invoiceController = new InvoiceController();
 
 //companyController
 route.post('/company', authorization, companyController.create);
@@ -60,5 +61,13 @@ route.delete('/revenue/:id', authorization, revenueController.eliminate);
 route.get('/revenue/:id', authorization, revenueController.get);
 route.get('/revenueList', authorization, revenueController.list);
 route.put('/revenue', authorization, revenueController.update);
+
+//invoiceController
+route.post('/invoice', authorization, invoiceController.create)
+route.delete('/invoice/:id', authorization, invoiceController.eliminate);
+route.get('/invoice/:id', authorization, invoiceController.get);
+route.get('/invoiceList', authorization, invoiceController.list);
+route.put('/invoice', authorization, invoiceController.update);
+
 
 export default route;
